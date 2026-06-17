@@ -58,6 +58,9 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "main.py" = ["S101"]  # asserts permitidos no scratch entry point
+# Scripts de corpus dirigem git/pandoc por subprocess com args fixos (S603/S607),
+# e a tabela de entidades contém caracteres unicode parecidos de propósito (RUF001).
+"scripts/**/*.py" = ["S603", "S607", "RUF001", "TRY003", "EM101"]
 "tests/**/*.py" = ["S101", "PLR2004"]  # asserts + literal comparisons are idiomatic in pytest
 # A camada de DB faz ponte entre duas APIs de driver não-tipadas (sqlite3 / psycopg)
 # e monta SQL com placeholders fixos por dialeto — Any e S608 são inerentes e seguros.
