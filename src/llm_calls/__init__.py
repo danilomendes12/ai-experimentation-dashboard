@@ -1,7 +1,7 @@
 from collections.abc import Generator, Iterator
 
 from accounting import estimate_partial_cost
-from db import LlmCall, LlmCallRepository
+from db import LlmCall, LlmCallRepository, Stage
 
 from .anthropic_client import AnthropicProvider
 from .base import CallLLMFn, LLMResponse, StreamChunk
@@ -37,6 +37,8 @@ def call_llm(
     temperature: float | None = None,
     top_p: float | None = None,
     top_k: int | None = None,
+    request_id: str | None = None,
+    stage: Stage | None = None,
     repository: LlmCallRepository | None = None,
 ) -> LLMResponse:
     if provider not in _REGISTRY:
@@ -73,6 +75,8 @@ def call_llm(
                 response_status="error",
                 error_message=str(e),
                 system_prompt=system_prompt,
+                request_id=request_id,
+                stage=stage,
             )
         )
         raise
@@ -94,6 +98,8 @@ def call_llm(
             response_status="success",
             system_prompt=system_prompt,
             ignored_params=result.ignored_params,
+            request_id=request_id,
+            stage=stage,
         )
     )
     return result
@@ -109,6 +115,8 @@ def stream_llm(
     temperature: float | None = None,
     top_p: float | None = None,
     top_k: int | None = None,
+    request_id: str | None = None,
+    stage: Stage | None = None,
     repository: LlmCallRepository | None = None,
 ) -> Generator[StreamChunk, None, None]:
     if provider not in _REGISTRY:
@@ -136,6 +144,8 @@ def stream_llm(
         temperature,
         top_p,
         top_k,
+        request_id,
+        stage,
     )
 
 
@@ -150,6 +160,8 @@ def _persist_stream(
     temperature: float | None,
     top_p: float | None,
     top_k: int | None,
+    request_id: str | None,
+    stage: Stage | None,
 ) -> Generator[StreamChunk, None, None]:
     deltas: list[str] = []
     persisted = False
@@ -177,6 +189,8 @@ def _persist_stream(
                         response_status="success",
                         system_prompt=system_prompt,
                         ignored_params=chunk.ignored_params,
+                        request_id=request_id,
+                        stage=stage,
                     )
                 )
                 persisted = True
@@ -218,6 +232,8 @@ def _persist_stream(
                     response_status="cancelled" if is_cancelled else "error",
                     error_message=None if is_cancelled else str(exc),
                     system_prompt=system_prompt,
+                    request_id=request_id,
+                    stage=stage,
                 )
             )
 

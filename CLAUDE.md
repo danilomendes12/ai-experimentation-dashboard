@@ -30,10 +30,16 @@ Abstract LLM call layer with a unified interface across four providers:
 Ollama notes: uses the OpenAI-compatible REST API (`http://localhost:11434/v1`); no API key required; `cost_usd` is always `0.0`; `top_k` is ignored (appended to `ignored_params`). Override the URL via `OLLAMA_BASE_URL`.
 
 ### `src/db/`
-Persistence and analytics layer backed by SQLite (`data/llm_calls.db`):
-- `models.py` — `LlmCall` dataclass (the persisted record) plus analytics output types (`CostStats`, `LatencyPercentiles`, `TtftPercentiles`, `DailySpend`).
-- `repository.py` — `LlmCallRepository`: `save`, `get`, `list_all`.
-- `analytics.py` — `LlmCallAnalytics`: `cost_per_call`, `latency_percentiles`, `ttft_percentiles`, `daily_spend`.
+Persistence and analytics layer backed by **Postgres + pgvector** at runtime (`docker compose up -d`; connection string in `DATABASE_URL`), with a SQLite fallback used by the test suite. Organized in pragmatic DDD layers, one class per file:
+
+- `domain/` — entities and value objects: `LlmCall` (carries optional `request_id`/`stage`), `RagRequest`, the `Stage` literal (`embed`|`rerank`|`generate`), and analytics outputs `CostStats`, `LatencyPercentiles`, `TtftPercentiles`, `DailySpend`.
+- `infrastructure/` — the dialect adapters. `base.py` (`DbBackend` ABC), `sqlite.py` (`SqliteBackend`), `postgres.py` (`PostgresBackend`), `factory.py` (`make_backend`). `make_backend(target)` returns `SqliteBackend` for a `Path` (tests) or `PostgresBackend` for a DSN `str`/`None` (reads `DATABASE_URL`), hiding every SQL-dialect difference (placeholders, auto-increment, timestamp/JSON handling).
+- `repositories/` — `LlmCallRepository` (`save`, `get`, `list_all`), `RagRequestRepository` (`save`, `get`, `update`), and `LlmCallAnalytics` (`cost_per_call`, `latency_percentiles`, `ttft_percentiles`, `daily_spend`). Percentiles are computed in Python, so results match across both backends.
+- `__init__.py` — facade that re-exports the public API, so `from db import LlmCall, LlmCallRepository, ...` keeps working.
+
+**Schema ownership:** on Postgres the schema is owned by **Flyway** — versioned `.sql` under `migrations/`, applied by the `flyway` service in `docker-compose.yml` (`PostgresBackend.schema_sql()` returns `[]`, so the app never issues DDL). The SQLite test backend keeps an equivalent in-code DDL in `infrastructure/sqlite.py`; **keep the two in sync** when changing the schema (add a new `migrations/Vn__*.sql` and mirror it in `sqlite.py`).
+
+Tables: `llm_calls` (one row per LLM call, with `request_id`/`stage`) and `rag_request` (`request_id` PK, `query`, `config_json`, `total_cost_usd`, `total_latency_ms`, `ttft_ms` nullable, `faithfulness` nullable, `status`).
 
 ### `src/api/`
 API HTTP construída com FastAPI, exposta via uvicorn:

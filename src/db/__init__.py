@@ -1,6 +1,13 @@
-from .analytics import LlmCallAnalytics
-from .models import CostStats, DailySpend, LatencyPercentiles, LlmCall, TtftPercentiles
-from .repository import LlmCallRepository
+from .domain import (
+    CostStats,
+    DailySpend,
+    LatencyPercentiles,
+    LlmCall,
+    RagRequest,
+    Stage,
+    TtftPercentiles,
+)
+from .repositories import LlmCallAnalytics, LlmCallRepository, RagRequestRepository
 
 __all__ = [
     "CostStats",
@@ -9,5 +16,8 @@ __all__ = [
     "LlmCall",
     "LlmCallAnalytics",
     "LlmCallRepository",
+    "RagRequest",
+    "RagRequestRepository",
+    "Stage",
     "TtftPercentiles",
 ]

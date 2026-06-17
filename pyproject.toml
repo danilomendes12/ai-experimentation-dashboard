@@ -59,9 +59,13 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "main.py" = ["S101"]  # asserts permitidos no scratch entry point
 "tests/**/*.py" = ["S101", "PLR2004"]  # asserts + literal comparisons are idiomatic in pytest
+# A camada de DB faz ponte entre duas APIs de driver não-tipadas (sqlite3 / psycopg)
+# e monta SQL com placeholders fixos por dialeto — Any e S608 são inerentes e seguros.
+"src/db/infrastructure/*.py" = ["ANN401"]
+"src/db/repositories/*.py" = ["ANN401", "S608"]
 
 [tool.ruff.lint.pylint]
-max-args = 10
+max-args = 12
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

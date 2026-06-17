@@ -66,6 +66,8 @@ class LlmCallSchema(BaseModel):
     error_message: str | None = None
     system_prompt: str | None = None
     ignored_params: list[str] = []
+    request_id: str | None = None
+    stage: str | None = None
 
 
 # ── Response: analytics ────────────────────────────────────────────────────────

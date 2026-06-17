@@ -186,4 +186,6 @@ def _to_schema(call: LlmCall) -> LlmCallSchema:
         error_message=call.error_message,
         system_prompt=call.system_prompt,
         ignored_params=call.ignored_params,
+        request_id=call.request_id,
+        stage=call.stage,
     )

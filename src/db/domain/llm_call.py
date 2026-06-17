@@ -1,38 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 
-
-@dataclass
-class CostStats:
-    count: int
-    total: float
-    avg: float
-    min: float
-    max: float
-    model: str | None = None
-
-
-@dataclass
-class LatencyPercentiles:
-    p50: float
-    p90: float
-    p99: float
-    model: str | None = None
-
-
-@dataclass
-class TtftPercentiles:
-    p50: float
-    p90: float
-    p99: float
-    model: str | None = None
-
-
-@dataclass
-class DailySpend:
-    date: str
-    total: float
-    count: int
+from .stage import Stage
 
 
 @dataclass
@@ -56,3 +25,5 @@ class LlmCall:
     error_message: str | None = None
     system_prompt: str | None = None
     ignored_params: list[str] = field(default_factory=list)
+    request_id: str | None = None
+    stage: Stage | None = None

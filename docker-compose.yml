@@ -15,5 +15,20 @@ services:
       timeout: 5s
       retries: 10
 
+  flyway:
+    image: flyway/flyway:11
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      -url=jdbc:postgresql://postgres:5432/ai_engineer_study
+      -user=postgres
+      -password=postgres
+      -connectRetries=10
+      -locations=filesystem:/flyway/sql
+      migrate
+    volumes:
+      - ./migrations:/flyway/sql
+
 volumes:
   pgdata:
