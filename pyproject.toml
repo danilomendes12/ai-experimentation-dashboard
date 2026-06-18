@@ -23,6 +23,7 @@ dependencies = [
     "tiktoken",
     "transformers",
     "fastapi[standard]",
+    "langchain-text-splitters>=1.1.2",
 ]
 
 [dependency-groups]

@@ -1,15 +1,24 @@
 from .domain import (
+    ChunkRecord,
     CostStats,
     DailySpend,
     LatencyPercentiles,
     LlmCall,
     RagRequest,
+    SearchHit,
     Stage,
     TtftPercentiles,
 )
-from .repositories import LlmCallAnalytics, LlmCallRepository, RagRequestRepository
+from .repositories import (
+    ChunkVectorStore,
+    LlmCallAnalytics,
+    LlmCallRepository,
+    RagRequestRepository,
+)
 
 __all__ = [
+    "ChunkRecord",
+    "ChunkVectorStore",
     "CostStats",
     "DailySpend",
     "LatencyPercentiles",
@@ -18,6 +27,7 @@ __all__ = [
     "LlmCallRepository",
     "RagRequest",
     "RagRequestRepository",
+    "SearchHit",
     "Stage",
     "TtftPercentiles",
 ]
